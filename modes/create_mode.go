@@ -40,44 +40,13 @@ func (m *CreateMode) Update(msg tea.Msg) (ModeStrategy, tea.Cmd) {
 }
 
 func (m *CreateMode) View() string {
-	q := m.query()
 	var b strings.Builder
-
-	// Add search bar at top
-	b.WriteString("🔍 " + m.input.View() + "\n\n")
-
+	b.WriteString(m.renderSearchBar())
 	if len(m.filtered) == 0 {
-		b.WriteString("  No directories found\n")
-		b.WriteString("  Tip: Add search paths in ~/.config/tsm/config.json\n")
-		return b.String()
+		return b.String() + m.renderEmptyState()
 	}
-
-	for i, d := range m.filtered {
-		icon := "󰉋 " // Folder icon
-		prefix := m.rowPrefix(i)
-
-		b.WriteString(prefix)
-		b.WriteString(icon)
-		b.WriteString(utils.HighlightMatches(filepath.Base(d), q))
-
-		// Show path hint for selected item
-		if i == m.cursor {
-			b.WriteString("  󰄾") // Arrow indicator
-		}
-
-		b.WriteByte('\n')
-
-		// Show full path for current selection
-		if i == m.cursor {
-			pathStyle := "    󰉖 " + d
-			b.WriteString(pathStyle)
-			b.WriteByte('\n')
-		}
-	}
-
-	// Add count at bottom
-	b.WriteString(fmt.Sprintf("\n  %d director(ies)", len(m.filtered)))
-
+	m.renderDirectoryList(&b)
+	b.WriteString(m.renderCount())
 	return b.String()
 }
 
@@ -101,7 +70,7 @@ func (m *CreateMode) handleKey(k tea.KeyMsg) (ModeStrategy, bool) {
 	case "down", "j":
 		m.moveCursor(1)
 	case "enter":
-		return m.onConfirm(), true
+		return m.confirmSelection(), true
 	}
 	return nil, false
 }
@@ -138,14 +107,13 @@ func (m *CreateMode) clampCursor() {
 	}
 }
 
-func (m *CreateMode) onConfirm() ModeStrategy {
+func (m *CreateMode) confirmSelection() ModeStrategy {
 	if !m.hasSelection() {
 		return m
 	}
 	dir := m.selectedDir()
 	name := filepath.Base(dir)
 	tmux.CreateSession(name, dir)
-
 	sessions, _ := tmux.ListSessions()
 	return NewSwitchMode(sessions)
 }
@@ -167,4 +135,38 @@ func (m *CreateMode) rowPrefix(i int) string {
 
 func (m *CreateMode) query() string {
 	return m.input.Value()
+}
+
+func (m *CreateMode) renderSearchBar() string {
+	return "🔍 " + m.input.View() + "\n\n"
+}
+
+func (m *CreateMode) renderEmptyState() string {
+	return "  No directories found\n  Tip: Add search paths in ~/.config/tsm/config.json\n"
+}
+
+func (m *CreateMode) renderDirectoryList(b *strings.Builder) {
+	q := m.query()
+	for i, d := range m.filtered {
+		m.renderDirectoryRow(b, i, d, q)
+	}
+}
+
+func (m *CreateMode) renderDirectoryRow(b *strings.Builder, i int, d, q string) {
+	icon := "󰉋 "
+	prefix := m.rowPrefix(i)
+	b.WriteString(prefix)
+	b.WriteString(icon)
+	b.WriteString(utils.HighlightMatches(filepath.Base(d), q))
+	if i == m.cursor {
+		b.WriteString("  󰄾")
+	}
+	b.WriteByte('\n')
+	if i == m.cursor {
+		b.WriteString("    󰉖 " + d + "\n")
+	}
+}
+
+func (m *CreateMode) renderCount() string {
+	return fmt.Sprintf("\n  %d director(ies)", len(m.filtered))
 }
