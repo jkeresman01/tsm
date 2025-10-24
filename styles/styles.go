@@ -5,13 +5,15 @@ import "github.com/charmbracelet/lipgloss"
 import "strings"
 
 const (
-	LeftPanelWidth  = 40
-	RightPanelWidth = 60
+	LeftPanelWidth  = 45
+	RightPanelWidth = 55
 )
 
 type Theme struct {
 	BorderColor    lipgloss.Color
 	SecondaryColor lipgloss.Color
+	AccentColor    lipgloss.Color
+	HighlightColor lipgloss.Color
 
 	LeftPanelWidth  int
 	RightPanelWidth int
@@ -31,6 +33,7 @@ var CurrentTheme Theme
 
 func InitTheme(mode string) {
 	CurrentTheme = pickTheme(normalizeMode(mode))
+	RefreshHelpStyles()
 }
 
 func normalizeMode(mode string) string {

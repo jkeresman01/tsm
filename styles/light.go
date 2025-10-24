@@ -9,6 +9,8 @@ func LightTheme() Theme {
 	return Theme{
 		BorderColor:      p.border,
 		SecondaryColor:   p.secondary,
+		AccentColor:      p.accent,
+		HighlightColor:   p.highlight,
 		LeftPanelWidth:   s.leftPanel,
 		RightPanelWidth:  s.rightPanel,
 		ContainerHeight:  s.containerHeight,
@@ -23,20 +25,22 @@ func LightTheme() Theme {
 
 func lightPalette() themePalette {
 	return themePalette{
-		border:    lipgloss.Color("0"),
-		secondary: lipgloss.Color("8"),
-		dimBG:     lipgloss.Color("252"),
+		border:    lipgloss.Color("#7C3AED"),
+		secondary: lipgloss.Color("#64748B"),
+		dimBG:     lipgloss.Color("#F1F5F9"),
+		accent:    lipgloss.Color("#8B5CF6"),
+		highlight: lipgloss.Color("#A855F7"),
 	}
 }
 
 func lightSizes() themeSizes {
 	return themeSizes{
-		leftPanel:       40,
-		rightPanel:      60,
-		containerHeight: 25,
+		leftPanel:       45,
+		rightPanel:      55,
+		containerHeight: 28,
 		paddingX:        2,
 		paddingY:        1,
-		marginX:         0,
+		marginX:         1,
 		marginY:         1,
 	}
 }

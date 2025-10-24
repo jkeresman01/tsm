@@ -27,6 +27,7 @@ func NewTsmManager(cfg config.Config) tea.Model {
 		sessions = []string{}
 	}
 
+	// Load project directories from config
 	dirs := utils.GetProjectDirs(cfg.SearchPaths, cfg.MaxDepth)
 
 	return &manager{
@@ -43,11 +44,13 @@ func (m *manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.applyWindowSize(t)
 		return m, nil
 	case tea.KeyMsg:
+		// Handle global keys first
 		if cmd := m.handleGlobalKey(t); cmd != nil {
 			return m, cmd
 		}
 	}
 
+	// Let the current mode handle the message
 	newMode, cmd := m.mode.Update(msg)
 	m.mode = newMode
 
@@ -93,27 +96,15 @@ func (m *manager) handleGlobalKey(k tea.KeyMsg) tea.Cmd {
 		return nil
 	case "ctrl+n":
 		m.mode = modes.NewCreateMode(m.dirs)
+		// If dirs is empty, try to load some default directories
 		if len(m.dirs) == 0 {
 			m.dirs = m.getDefaultDirs()
 			m.mode = modes.NewCreateMode(m.dirs)
 		}
 		return nil
 	case "ctrl+r":
-		var sessionToRename string
-		if switchMode, ok := m.mode.(*modes.SwitchMode); ok {
-			sessionToRename = switchMode.GetCurrentSession()
-		}
-
-		if sessionToRename == "" {
-			sessions, _ := tmux.ListSessions()
-			if len(sessions) > 0 {
-				sessionToRename = sessions[0]
-			}
-		}
-
-		if sessionToRename != "" {
-			m.mode = modes.NewRenameMode(sessionToRename)
-		}
+		// Always start rename mode in selection phase (empty string)
+		m.mode = modes.NewRenameMode("")
 		return nil
 	case "ctrl+s":
 		sessions, _ := tmux.ListSessions()
@@ -129,7 +120,7 @@ func (m *manager) cycleMode() {
 	switch m.mode.(type) {
 	case *modes.SwitchMode:
 		if len(sessions) > 0 {
-			m.mode = modes.NewRenameMode(sessions[0])
+			m.mode = modes.NewRenameMode("")
 		}
 	case *modes.RenameMode:
 		m.mode = modes.NewCreateMode(m.dirs)
@@ -143,7 +134,6 @@ func (m *manager) cycleMode() {
 func (m *manager) getDefaultDirs() []string {
 	return []string{
 		"~/projects",
-		"~/git",
 		"~/code",
 		"~/work",
 		"~/.config",
@@ -165,22 +155,32 @@ func (m *manager) renderHelpOverlay() string {
 }
 
 func (m *manager) renderHeader() string {
-	title := lipgloss.NewStyle().
+	// Title with icon
+	titleStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(styles.CurrentTheme.BorderColor).
-		Render("TSM")
+		Foreground(styles.CurrentTheme.AccentColor)
+
+	title := titleStyle.Render("󱎫 TSM")
+
+	// Mode indicator with icon
+	modeIcon := m.getModeIcon()
+	modeText := modeIcon + " " + m.modeLabel()
+
+	mode := lipgloss.NewStyle().
+		Align(lipgloss.Right).
+		Foreground(styles.CurrentTheme.HighlightColor).
+		Bold(true).
+		Render(modeText)
 
 	left := lipgloss.NewStyle().
 		Width(styles.CurrentTheme.LeftPanelWidth).
 		Render(title)
 
-	mode := lipgloss.NewStyle().
+	right := lipgloss.NewStyle().
 		Width(styles.CurrentTheme.RightPanelWidth).
-		Align(lipgloss.Right).
-		Foreground(styles.CurrentTheme.SecondaryColor).
-		Render(m.modeLabel())
+		Render(mode)
 
-	row := lipgloss.JoinHorizontal(lipgloss.Top, left, mode)
+	row := lipgloss.JoinHorizontal(lipgloss.Top, left, right)
 
 	return styles.CurrentTheme.HeaderStyle.
 		Width(m.totalContentWidth()).
@@ -193,21 +193,39 @@ func (m *manager) renderBody() string {
 
 func (m *manager) renderFooter() string {
 	text := m.getFooterText()
+
+	styledText := lipgloss.NewStyle().
+		Foreground(styles.CurrentTheme.SecondaryColor).
+		Render(text)
+
 	return styles.CurrentTheme.FooterStyle.Render(
-		lipgloss.PlaceHorizontal(m.totalContentWidth(), lipgloss.Center, text),
+		lipgloss.PlaceHorizontal(m.totalContentWidth(), lipgloss.Center, styledText),
 	)
 }
 
 func (m *manager) getFooterText() string {
 	switch m.mode.(type) {
 	case *modes.SwitchMode:
-		return "↑↓ to navigate • enter to switch • tab to cycle mode • ? for help • q to quit"
+		return "↑↓ navigate • ↵ switch • ⇥ cycle • ^N new • ^R rename • ? help • q quit"
 	case *modes.RenameMode:
-		return "type new name • enter to confirm • tab to cycle mode • q to quit"
+		return "↑↓ navigate • ↵ select/confirm • ⎋ cancel • ⇥ cycle • ? help • q quit"
 	case *modes.CreateMode:
-		return "↑↓ to navigate • enter to create session • tab to cycle mode • q to quit"
+		return "↑↓ navigate • ↵ create • ⇥ cycle • ? help • q quit"
 	default:
-		return "? for help • q to quit"
+		return "? help • q quit"
+	}
+}
+
+func (m *manager) getModeIcon() string {
+	switch m.mode.(type) {
+	case *modes.SwitchMode:
+		return "󰆧" // Switch icon
+	case *modes.RenameMode:
+		return "󰑕" // Edit icon
+	case *modes.CreateMode:
+		return "󰐕" // Add icon
+	default:
+		return "󰍉" // Terminal icon
 	}
 }
 
@@ -227,7 +245,14 @@ func (m *manager) modeLabel() string {
 	if m.mode == nil {
 		sessions, _ := tmux.ListSessions()
 		m.mode = modes.NewSwitchMode(sessions)
-		return "SWITCH MODE"
+		return "SWITCH"
 	}
-	return m.mode.ModeName()
+
+	// Simplify mode names
+	name := m.mode.ModeName()
+	name = strings.TrimSuffix(name, " MODE")
+	name = strings.TrimPrefix(name, "RENAME: ")
+	name = strings.TrimSuffix(name, " - SELECT SESSION")
+
+	return name
 }

@@ -1,6 +1,7 @@
 package modes
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -41,24 +42,55 @@ func (m *CreateMode) Update(msg tea.Msg) (ModeStrategy, tea.Cmd) {
 func (m *CreateMode) View() string {
 	q := m.query()
 	var b strings.Builder
-	for i, d := range m.filtered {
-		b.WriteString(m.rowPrefix(i))
-		b.WriteString(utils.HighlightMatches(d, q))
-		b.WriteByte('\n')
+
+	// Add search bar at top
+	b.WriteString("🔍 " + m.input.View() + "\n\n")
+
+	if len(m.filtered) == 0 {
+		b.WriteString("  No directories found\n")
+		b.WriteString("  Tip: Add search paths in ~/.config/tsm/config.json\n")
+		return b.String()
 	}
+
+	for i, d := range m.filtered {
+		icon := "󰉋 " // Folder icon
+		prefix := m.rowPrefix(i)
+
+		b.WriteString(prefix)
+		b.WriteString(icon)
+		b.WriteString(utils.HighlightMatches(filepath.Base(d), q))
+
+		// Show path hint for selected item
+		if i == m.cursor {
+			b.WriteString("  󰄾") // Arrow indicator
+		}
+
+		b.WriteByte('\n')
+
+		// Show full path for current selection
+		if i == m.cursor {
+			pathStyle := "    󰉖 " + d
+			b.WriteString(pathStyle)
+			b.WriteByte('\n')
+		}
+	}
+
+	// Add count at bottom
+	b.WriteString(fmt.Sprintf("\n  %d director(ies)", len(m.filtered)))
+
 	return b.String()
 }
 
-func (m *CreateMode) ModeName() string          { return "CREATE MODE" }
+func (m *CreateMode) ModeName() string          { return "CREATE" }
 func (m *CreateMode) Reset()                    {}
 func (m *CreateMode) GetCurrentSession() string { return "" }
 
 func newSearchInput() textinput.Model {
 	ti := textinput.New()
-	ti.Placeholder = "Search dirs..."
+	ti.Placeholder = "Search directories..."
 	ti.Focus()
 	ti.Prompt = ""
-	ti.Width = 20
+	ti.Width = 30
 	return ti
 }
 
@@ -128,7 +160,7 @@ func (m *CreateMode) selectedDir() string {
 
 func (m *CreateMode) rowPrefix(i int) string {
 	if i == m.cursor {
-		return "> "
+		return "▶ "
 	}
 	return "  "
 }
