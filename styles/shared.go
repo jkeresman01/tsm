@@ -13,12 +13,12 @@ type themeSizes struct {
 }
 
 type themePalette struct {
-	border    lipgloss.TerminalColor
-	secondary lipgloss.TerminalColor
-	dimBG     lipgloss.TerminalColor
+	border    lipgloss.Color
+	secondary lipgloss.Color
+	dimBG     lipgloss.Color
 }
 
-func baseBorderStyle(border lipgloss.TerminalColor) lipgloss.Style {
+func baseBorderStyle(border lipgloss.Color) lipgloss.Style {
 	return lipgloss.NewStyle().
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(border)
@@ -26,7 +26,7 @@ func baseBorderStyle(border lipgloss.TerminalColor) lipgloss.Style {
 
 func outerStyle(p themePalette, s themeSizes) lipgloss.Style {
 	return baseBorderStyle(p.border).
-		Border(true).
+		BorderStyle(lipgloss.NormalBorder()).
 		Height(s.containerHeight).
 		Padding(s.paddingY, s.paddingX).
 		Margin(s.marginY, s.marginX)

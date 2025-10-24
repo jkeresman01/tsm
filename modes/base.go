@@ -9,4 +9,5 @@ type ModeStrategy interface {
 	View() string
 	ModeName() string
 	Reset()
+	GetCurrentSession() string
 }

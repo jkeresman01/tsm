@@ -29,13 +29,16 @@ func (m *RenameMode) Update(msg tea.Msg) (ModeStrategy, tea.Cmd) {
 		if newName != "" && newName != m.session {
 			tmux.RenameSession(m.session, newName)
 		}
-		return NewSwitchMode([]string{}), nil
+
+		sessions, _ := tmux.ListSessions()
+		return NewSwitchMode(sessions), nil
 	}
 
 	m.input, cmd = m.input.Update(msg)
 	return m, cmd
 }
 
-func (m *RenameMode) View() string     { return "Rename: " + m.input.View() }
-func (m *RenameMode) ModeName() string { return "RENAME MODE" }
-func (m *RenameMode) Reset()           { m.input.Reset() }
+func (m *RenameMode) View() string              { return "Rename: " + m.input.View() }
+func (m *RenameMode) ModeName() string          { return "RENAME MODE" }
+func (m *RenameMode) Reset()                    { m.input.Reset() }
+func (m *RenameMode) GetCurrentSession() string { return m.session }

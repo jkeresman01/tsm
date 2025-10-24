@@ -2,6 +2,7 @@ package tmux
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -35,12 +36,18 @@ func RenameSession(oldName, newName string) error {
 }
 
 func AttachSession(name string) error {
+	if os.Getenv("TMUX") != "" {
+		cmd := exec.Command("tmux", "switch-client", "-t", name)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		return cmd.Run()
+	}
+
 	cmd := exec.Command("tmux", "attach-session", "-t", name)
-
-	cmd.Stdin = nil
-	cmd.Stdout = nil
-	cmd.Stderr = nil
-
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
 

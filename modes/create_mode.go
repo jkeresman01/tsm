@@ -49,8 +49,9 @@ func (m *CreateMode) View() string {
 	return b.String()
 }
 
-func (m *CreateMode) ModeName() string { return "CREATE MODE" }
-func (m *CreateMode) Reset()           {}
+func (m *CreateMode) ModeName() string          { return "CREATE MODE" }
+func (m *CreateMode) Reset()                    {}
+func (m *CreateMode) GetCurrentSession() string { return "" }
 
 func newSearchInput() textinput.Model {
 	ti := textinput.New()
@@ -112,7 +113,9 @@ func (m *CreateMode) onConfirm() ModeStrategy {
 	dir := m.selectedDir()
 	name := filepath.Base(dir)
 	tmux.CreateSession(name, dir)
-	return NewSwitchMode([]string{})
+
+	sessions, _ := tmux.ListSessions()
+	return NewSwitchMode(sessions)
 }
 
 func (m *CreateMode) hasSelection() bool {

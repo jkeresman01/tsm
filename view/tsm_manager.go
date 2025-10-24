@@ -4,23 +4,34 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/jkeresman01/tsm/view/model"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/jkeresman01/tsm/config"
 	modes "github.com/jkeresman01/tsm/modes"
 	styles "github.com/jkeresman01/tsm/styles"
+	"github.com/jkeresman01/tsm/tmux"
+	"github.com/jkeresman01/tsm/utils"
 )
 
 type manager struct {
-	width        int
-	height       int
-	showHelp     bool
-	sessionModel model.SessionModel
+	width    int
+	height   int
+	showHelp bool
+	mode     modes.ModeStrategy
+	dirs     []string
 }
 
-func NewTsmMManager() tea.Model {
+func NewTsmManager(cfg config.Config) tea.Model {
+	sessions, _ := tmux.ListSessions()
+	if len(sessions) == 0 {
+		sessions = []string{}
+	}
+
+	dirs := utils.GetProjectDirs(cfg.SearchPaths, cfg.MaxDepth)
+
 	return &manager{
-		sessionModel: model.NewSessionModel(),
+		mode: modes.NewSwitchMode(sessions),
+		dirs: dirs,
 	}
 }
 
@@ -32,11 +43,14 @@ func (m *manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.applyWindowSize(t)
 		return m, nil
 	case tea.KeyMsg:
-		m.handleKey(t)
+		if cmd := m.handleGlobalKey(t); cmd != nil {
+			return m, cmd
+		}
 	}
 
-	updated, cmd := m.sessionModel.Update(msg)
-	m.sessionModel = updated
+	newMode, cmd := m.mode.Update(msg)
+	m.mode = newMode
+
 	return m, cmd
 }
 
@@ -67,18 +81,72 @@ func (m *manager) applyWindowSize(msg tea.WindowSizeMsg) {
 	m.height = msg.Height
 }
 
-func (m *manager) handleKey(k tea.KeyMsg) {
+func (m *manager) handleGlobalKey(k tea.KeyMsg) tea.Cmd {
 	switch k.String() {
-	case "tab":
-		m.sessionModel.NextMode()
-	case "ctrl+n":
-		m.sessionModel.SetMode(modes.NewCreateMode(m.sessionModel.Sessions()))
-	case "ctrl:r", "ctrl+r":
-		m.sessionModel.SetMode(modes.NewRenameMode(m.sessionModel.CurrentSession()))
-	case "ctrl:s", "ctrl+s":
-		m.sessionModel.SetMode(modes.NewSwitchMode(m.sessionModel.Sessions()))
+	case "ctrl+c", "q":
+		return tea.Quit
 	case "?":
 		m.showHelp = !m.showHelp
+		return nil
+	case "tab":
+		m.cycleMode()
+		return nil
+	case "ctrl+n":
+		m.mode = modes.NewCreateMode(m.dirs)
+		if len(m.dirs) == 0 {
+			m.dirs = m.getDefaultDirs()
+			m.mode = modes.NewCreateMode(m.dirs)
+		}
+		return nil
+	case "ctrl+r":
+		var sessionToRename string
+		if switchMode, ok := m.mode.(*modes.SwitchMode); ok {
+			sessionToRename = switchMode.GetCurrentSession()
+		}
+
+		if sessionToRename == "" {
+			sessions, _ := tmux.ListSessions()
+			if len(sessions) > 0 {
+				sessionToRename = sessions[0]
+			}
+		}
+
+		if sessionToRename != "" {
+			m.mode = modes.NewRenameMode(sessionToRename)
+		}
+		return nil
+	case "ctrl+s":
+		sessions, _ := tmux.ListSessions()
+		m.mode = modes.NewSwitchMode(sessions)
+		return nil
+	}
+	return nil
+}
+
+func (m *manager) cycleMode() {
+	sessions, _ := tmux.ListSessions()
+
+	switch m.mode.(type) {
+	case *modes.SwitchMode:
+		if len(sessions) > 0 {
+			m.mode = modes.NewRenameMode(sessions[0])
+		}
+	case *modes.RenameMode:
+		m.mode = modes.NewCreateMode(m.dirs)
+	case *modes.CreateMode:
+		m.mode = modes.NewSwitchMode(sessions)
+	default:
+		m.mode = modes.NewSwitchMode(sessions)
+	}
+}
+
+func (m *manager) getDefaultDirs() []string {
+	return []string{
+		"~/projects",
+		"~/git",
+		"~/code",
+		"~/work",
+		"~/.config",
 	}
 }
 
@@ -102,11 +170,9 @@ func (m *manager) renderHeader() string {
 		Foreground(styles.CurrentTheme.BorderColor).
 		Render("TSM")
 
-	search := m.sessionModel.Input().View()
-
 	left := lipgloss.NewStyle().
 		Width(styles.CurrentTheme.LeftPanelWidth).
-		Render(lipgloss.JoinHorizontal(lipgloss.Top, title, " 🔍 ", search))
+		Render(title)
 
 	mode := lipgloss.NewStyle().
 		Width(styles.CurrentTheme.RightPanelWidth).
@@ -122,14 +188,27 @@ func (m *manager) renderHeader() string {
 }
 
 func (m *manager) renderBody() string {
-	return styles.CurrentTheme.ListStyle.Render(m.sessionModel.View())
+	return styles.CurrentTheme.ListStyle.Render(m.mode.View())
 }
 
 func (m *manager) renderFooter() string {
-	text := "↑↓ to navigate • enter to attach • q to quit"
+	text := m.getFooterText()
 	return styles.CurrentTheme.FooterStyle.Render(
 		lipgloss.PlaceHorizontal(m.totalContentWidth(), lipgloss.Center, text),
 	)
+}
+
+func (m *manager) getFooterText() string {
+	switch m.mode.(type) {
+	case *modes.SwitchMode:
+		return "↑↓ to navigate • enter to switch • tab to cycle mode • ? for help • q to quit"
+	case *modes.RenameMode:
+		return "type new name • enter to confirm • tab to cycle mode • q to quit"
+	case *modes.CreateMode:
+		return "↑↓ to navigate • enter to create session • tab to cycle mode • q to quit"
+	default:
+		return "? for help • q to quit"
+	}
 }
 
 func (m *manager) remainingHeight(contentHeight int) int {
@@ -145,9 +224,10 @@ func (m *manager) totalContentWidth() int {
 }
 
 func (m *manager) modeLabel() string {
-	if m.sessionModel.Mode == nil {
-		m.sessionModel.SetMode(modes.NewSwitchMode(m.sessionModel.Sessions()))
+	if m.mode == nil {
+		sessions, _ := tmux.ListSessions()
+		m.mode = modes.NewSwitchMode(sessions)
 		return "SWITCH MODE"
 	}
-	return m.sessionModel.Mode.ModeName()
+	return m.mode.ModeName()
 }

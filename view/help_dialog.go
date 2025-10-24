@@ -36,7 +36,7 @@ func helpLines() string {
 	return b.String()
 }
 
-func helpLine(sc model.ShortcutsDef) string {
+func helpLine(sc model.Shortcut) string {
 	key := styles.HelpKeyStyle.Width(helpKeyColWidth).Render(sc.Key)
 	desc := styles.HelpDescStyle.Render(sc.Desc)
 	return lipgloss.JoinHorizontal(lipgloss.Top, key, desc)

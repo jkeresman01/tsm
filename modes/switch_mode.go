@@ -52,9 +52,16 @@ func (m *SwitchMode) ModeName() string { return "SWITCH MODE" }
 
 func (m *SwitchMode) Reset() { m.input.Reset() }
 
+func (m *SwitchMode) GetCurrentSession() string {
+	if m.hasSelection() {
+		return m.filtered[m.cursor]
+	}
+	return ""
+}
+
 func newSwitchInput() textinput.Model {
 	ti := textinput.New()
-	ti.Placeholder = "Search..."
+	ti.Placeholder = "Search sessions..."
 	ti.Focus()
 	ti.Prompt = ""
 	ti.CharLimit = 64
@@ -72,6 +79,10 @@ func (m *SwitchMode) handleKey(k tea.KeyMsg) (ModeStrategy, tea.Cmd, bool) {
 		if m.hasSelection() {
 			tmux.AttachSession(m.filtered[m.cursor])
 			return m, tea.Quit, true
+		}
+	case "d", "delete":
+		if m.hasSelection() {
+			// Does nothing in this exact moment in the universe
 		}
 	}
 	return nil, nil, false
