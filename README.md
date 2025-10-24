@@ -48,6 +48,16 @@ type ModeStrategy interface {
 
 On first run, TSM will create a default configuration file at `~/.config/tsm/config.json`.
 
+### Configuration Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `search_paths` | array | Directories to scan for projects |
+| `max_depth` | number | How deep to scan subdirectories |
+| `theme` | string | UI theme: `"dark"` or `"light"` |
+
+
+
 ### Defaults
 
 ```json
@@ -62,15 +72,6 @@ On first run, TSM will create a default configuration file at `~/.config/tsm/con
   "theme": "dark"
 }
 ```
-
-### Configuration Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `search_paths` | array | `["~/projects", "~/code", "~/work", "~/dev"]` | Directories to scan for projects |
-| `max_depth` | number | `3` | How deep to scan subdirectories |
-| `theme` | string | `"dark"` | UI theme: `"dark"` or `"light"` |
-
 
 ### Excluded Directories
 
