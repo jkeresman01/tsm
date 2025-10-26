@@ -75,6 +75,14 @@ func (m *CreateMode) handleKey(k tea.KeyMsg) (ModeStrategy, bool) {
 	return nil, false
 }
 
+func (m *CreateMode) GetIcon() string {
+	return "󰐕"
+}
+
+func (m *CreateMode) GetFooterText() string {
+	return "↑↓ navigate • ↵ create • ⇥ cycle • ? help • q quit"
+}
+
 func (m *CreateMode) updateQuery(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 	m.input, cmd = m.input.Update(msg)

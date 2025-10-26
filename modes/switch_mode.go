@@ -94,6 +94,14 @@ func (m *SwitchMode) updateInput(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
+func (m *SwitchMode) GetIcon() string {
+	return "󰆧"
+}
+
+func (m *SwitchMode) GetFooterText() string {
+	return "↑↓ navigate • ↵ switch • ⇥ cycle • ^N new • ^R rename • ? help • q quit"
+}
+
 func (m *SwitchMode) applyFilter() {
 	m.filtered = utils.FuzzyFilter(m.sessions, m.query())
 }

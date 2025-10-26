@@ -10,4 +10,6 @@ type ModeStrategy interface {
 	ModeName() string
 	Reset()
 	GetCurrentSession() string
+	GetIcon() string
+	GetFooterText() string
 }

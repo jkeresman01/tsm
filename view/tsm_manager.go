@@ -155,7 +155,7 @@ func (m *manager) renderTitle() string {
 }
 
 func (m *manager) renderModeIndicator() string {
-	modeText := m.getModeIcon() + " " + m.modeLabel()
+	modeText := m.mode.GetIcon() + " " + m.modeLabel()
 	right := lipgloss.NewStyle().
 		Align(lipgloss.Right).
 		Foreground(styles.CurrentTheme.HighlightColor).
@@ -170,37 +170,11 @@ func (m *manager) renderBody() string {
 }
 
 func (m *manager) renderFooter() string {
-	text := m.getFooterText()
+	text := m.mode.GetFooterText()
 	styledText := lipgloss.NewStyle().Foreground(styles.CurrentTheme.SecondaryColor).Render(text)
 	return styles.CurrentTheme.FooterStyle.Render(
 		lipgloss.PlaceHorizontal(m.totalContentWidth(), lipgloss.Center, styledText),
 	)
-}
-
-func (m *manager) getFooterText() string {
-	switch m.mode.(type) {
-	case *modes.SwitchMode:
-		return "↑↓ navigate • ↵ switch • ⇥ cycle • ^N new • ^R rename • ? help • q quit"
-	case *modes.RenameMode:
-		return "↑↓ navigate • ↵ select/confirm • ⎋ cancel • ⇥ cycle • ? help • q quit"
-	case *modes.CreateMode:
-		return "↑↓ navigate • ↵ create • ⇥ cycle • ? help • q quit"
-	default:
-		return "? help • q quit"
-	}
-}
-
-func (m *manager) getModeIcon() string {
-	switch m.mode.(type) {
-	case *modes.SwitchMode:
-		return "󰆧"
-	case *modes.RenameMode:
-		return "󰑕"
-	case *modes.CreateMode:
-		return "󰐕"
-	default:
-		return "󰍉"
-	}
 }
 
 func (m *manager) remainingHeight(contentHeight int) int {

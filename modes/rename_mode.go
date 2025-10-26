@@ -123,6 +123,17 @@ func (m *RenameMode) handleSelectionKeys(k tea.KeyMsg) (ModeStrategy, tea.Cmd, b
 	return nil, nil, false
 }
 
+func (m *RenameMode) GetIcon() string {
+	return "󰑕"
+}
+
+func (m *RenameMode) GetFooterText() string {
+	if m.renaming {
+		return "type new name • ↵ confirm • ⎋ cancel • ? help • q quit"
+	}
+	return "↑↓ navigate • ↵ select/confirm • ⎋ cancel • ⇥ cycle • ? help • q quit"
+}
+
 func (m *RenameMode) updateRenameInput(msg tea.Msg) (ModeStrategy, tea.Cmd) {
 	var cmd tea.Cmd
 	m.renameInput, cmd = m.renameInput.Update(msg)
