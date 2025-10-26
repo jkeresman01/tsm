@@ -11,6 +11,10 @@
 
 [![asciicast](https://asciinema.org/a/HuFKZYETW9Xy9AADF5uu32l54.svg)](https://asciinema.org/a/HuFKZYETW9Xy9AADF5uu32l54)
 
+## Preview ##
+<img width="1426" height="789" alt="image" src="https://github.com/user-attachments/assets/cce1ca5d-9314-4295-9133-a73bb7caef9b" />
+
+
 ## Project structure ##
 
 ```
