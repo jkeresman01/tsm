@@ -5,6 +5,18 @@ import (
 	"path/filepath"
 )
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  @Brief			ScanDirectories recursively scans a directory up to a specified depth.
+//
+//	@Description	Expands ~ to home directory and scans for subdirectories
+//
+//	@Param			basePath	string	Root directory to scan
+//	@Param			maxDepth	int		Maximum recursion depth
+//
+//	@Return			[]string	List of discovered directories
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 func ScanDirectories(basePath string, maxDepth int) []string {
 	var dirs []string
 
@@ -18,6 +30,19 @@ func ScanDirectories(basePath string, maxDepth int) []string {
 	return dirs
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  @Brief			scanDir is the recursive helper for directory scanning.
+//
+//	@Param			basePath		string		Original base path
+//	@Param			currentPath		string		Current directory being scanned
+//	@Param			maxDepth		int			Maximum recursion depth
+//	@Param			currentDepth	int			Current recursion depth
+//	@Param			dirs			*[]string	Accumulator for discovered directories
+//
+//	@Return			error			Error if directory cannot be read
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 func scanDir(basePath, currentPath string, maxDepth, currentDepth int, dirs *[]string) error {
 	if currentDepth > maxDepth {
 		return nil
@@ -52,6 +77,15 @@ func scanDir(basePath, currentPath string, maxDepth, currentDepth int, dirs *[]s
 	return nil
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  @Brief			expandHome expands ~ to the user's home directory.
+//
+//	@Param			path	string	Path that may contain ~
+//
+//	@Return			string	Expanded path
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 func expandHome(path string) string {
 	if len(path) == 0 || path[0] != '~' {
 		return path
@@ -69,6 +103,17 @@ func expandHome(path string) string {
 	return filepath.Join(home, path[1:])
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  @Brief			isExcluded checks if a directory name should be excluded from scanning.
+//
+//	@Description	Excludes common build artifacts and dependency directories
+//
+//	@Param			name	string	Directory name
+//
+//	@Return			bool	True if directory should be excluded
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 func isExcluded(name string) bool {
 	excluded := map[string]bool{
 		"node_modules": true,
@@ -84,6 +129,18 @@ func isExcluded(name string) bool {
 	return excluded[name]
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  @Brief			GetProjectDirs scans multiple search paths and returns unique directories.
+//
+//	@Description	Deduplicates directories found across multiple search paths
+//
+//	@Param			searchPaths	[]string	List of paths to scan
+//	@Param			depth		int			Maximum scanning depth
+//
+//	@Return			[]string	Deduplicated list of discovered directories
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
 func GetProjectDirs(searchPaths []string, depth int) []string {
 	var allDirs []string
 	seen := make(map[string]bool)
