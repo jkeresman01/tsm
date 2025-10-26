@@ -12,7 +12,7 @@ const helpKeyColWidth = 14
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			RenderHelpDialog renders the help dialog with keyboard shortcuts.
+//	    @Brief			RenderHelpDialog renders the help dialog with keyboard shortcuts.
 //
 //		@Param			width	int		Width of the dialog
 //
@@ -26,7 +26,7 @@ func RenderHelpDialog(width int) string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			helpContent generates the complete help dialog content.
+//	    @Brief			helpContent generates the complete help dialog content.
 //
 //		@Return			string	Help dialog content with title and shortcuts
 //
@@ -41,7 +41,7 @@ func helpContent() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			helpTitle renders the help dialog title.
+//	    @Brief			helpTitle renders the help dialog title.
 //
 //		@Return			string	Styled title "Keyboard Shortcuts"
 //
@@ -52,7 +52,7 @@ func helpTitle() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			helpLines renders all shortcut lines.
+//	    @Brief			helpLines renders all shortcut lines.
 //
 //		@Return			string	All shortcut lines formatted
 //
@@ -68,7 +68,7 @@ func helpLines() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			helpLine renders a single shortcut line.
+//	    @Brief			helpLine renders a single shortcut line.
 //
 //		@Param			sc	model.Shortcut	Shortcut to render
 //

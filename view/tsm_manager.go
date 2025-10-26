@@ -14,9 +14,9 @@ import (
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			manager is the main application model for Bubble Tea.
+//	@Brief			manager is the main application model for Bubble Tea.
 //
-//		@Description	Manages the overall UI state, mode coordination, and layout rendering
+//	@Description	Manages the overall UI state, mode coordination, and layout rendering
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 type manager struct {
@@ -29,11 +29,11 @@ type manager struct {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			NewTsmManager creates a new TSM manager instance.
+//	@Brief			NewTsmManager creates a new TSM manager instance.
 //
-//		@Param			cfg		config.Config	Application configuration
+//	@Param			cfg		config.Config	Application configuration
 //
-//		@Return			tea.Model	Initialized Bubble Tea model
+//	@Return	    tea.Model		Initialized Bubble Tea model
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func NewTsmManager(cfg config.Config) tea.Model {
@@ -50,21 +50,21 @@ func NewTsmManager(cfg config.Config) tea.Model {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			Init initializes the manager (Bubble Tea Init method).
+//	@Brief			Init initializes the manager (Bubble Tea Init method).
 //
-//		@Return			tea.Cmd	Initial command (nil in this case)
+//	@Return	    tea.Cmd	Initial command (nil in this case)
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) Init() tea.Cmd { return nil }
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			Update processes messages and updates the manager state.
+//	@Brief			Update processes messages and updates the manager state.
 //
-//		@Param			msg		tea.Msg		Input message
+//	@Param			msg		tea.Msg		Input message
 //
-//		@Return			tea.Model	Updated model
-//		@Return			tea.Cmd		Command to execute
+//	@Return			tea.Model	Updated model
+//	@Return			tea.Cmd		Command to execute
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -84,9 +84,9 @@ func (m *manager) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			View renders the complete UI (Bubble Tea View method).
+//	@Brief			View renders the complete UI (Bubble Tea View method).
 //
-//		@Return			string	Rendered view
+//	@Return	    string	Rendered view
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) View() string {
@@ -118,9 +118,9 @@ func (m *manager) renderLayout() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			applyWindowSize updates the manager's width and height.
+//	@Brief			applyWindowSize updates the manager's width and height.
 //
-//		@Param			msg		tea.WindowSizeMsg	Window size message
+//	@Param			msg		tea.WindowSizeMsg	Window size message
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) applyWindowSize(msg tea.WindowSizeMsg) {
@@ -130,11 +130,11 @@ func (m *manager) applyWindowSize(msg tea.WindowSizeMsg) {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			handleGlobalKey processes global keyboard shortcuts.
+//	@Brief			handleGlobalKey processes global keyboard shortcuts.
 //
-//		@Param			k		tea.KeyMsg	Keyboard message
+//	@Param			k		tea.KeyMsg	Keyboard message
 //
-//		@Return			tea.Cmd	Command to execute (e.g., tea.Quit)
+//	@Return	    tea.Cmd	Command to execute (e.g., tea.Quit)
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) handleGlobalKey(k tea.KeyMsg) tea.Cmd {
@@ -157,9 +157,9 @@ func (m *manager) handleGlobalKey(k tea.KeyMsg) tea.Cmd {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			handleCreateMode switches to create mode.
+//	@Brief			handleCreateMode switches to create mode.
 //
-//		@Description	Uses existing dirs or loads default directories if none available
+//	@Description	Uses existing dirs or loads default directories if none available
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) handleCreateMode() {
@@ -182,9 +182,9 @@ func (m *manager) handleSwitchMode() {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			cycleMode cycles through the available modes.
+//		 @Brief			cycleMode cycles through the available modes.
 //
-//		@Description	Order: Switch -> Rename -> Create -> Switch
+//	  @Description	Order: Switch -> Rename -> Create -> Switch
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) cycleMode() {
@@ -205,9 +205,9 @@ func (m *manager) cycleMode() {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			getDefaultDirs returns a default set of directories.
+//		 @Brief			getDefaultDirs returns a default set of directories.
 //
-//		@Return			[]string	Default directory paths
+//	  @Return	    []string	Default directory paths
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) getDefaultDirs() []string {
@@ -221,9 +221,9 @@ func (m *manager) getDefaultDirs() []string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			renderHelpOverlay renders the help dialog as an overlay.
+//	@Brief			renderHelpOverlay renders the help dialog as an overlay.
 //
-//		@Return			string	Help dialog overlaid on dimmed background
+//	@Return	    string	Help dialog overlaid on dimmed background
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) renderHelpOverlay() string {
@@ -239,9 +239,9 @@ func (m *manager) renderHelpOverlay() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			renderHeader renders the application header.
+//	@Brief			renderHeader renders the application header.
 //
-//		@Return			string	Header with title and mode indicator
+//	@Return	    string	Header with title and mode indicator
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) renderHeader() string {
@@ -253,9 +253,9 @@ func (m *manager) renderHeader() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			renderTitle renders the application title.
+//		 @Brief			renderTitle renders the application title.
 //
-//		@Return			string	Styled "TSM" title
+//	  @Return	    string	Styled "TSM" title
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) renderTitle() string {
@@ -266,9 +266,9 @@ func (m *manager) renderTitle() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			renderModeIndicator renders the current mode indicator.
+//	@Brief			renderModeIndicator renders the current mode indicator.
 //
-//		@Return			string	Styled mode name with icon
+//	@Return		string	Styled mode name with icon
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) renderModeIndicator() string {
@@ -284,9 +284,9 @@ func (m *manager) renderModeIndicator() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			renderBody renders the main content body.
+//	@Brief			renderBody renders the main content body.
 //
-//		@Return			string	Current mode's view content
+//	@Return		string	Current mode's view content
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) renderBody() string {
@@ -295,9 +295,9 @@ func (m *manager) renderBody() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			renderFooter renders the application footer.
+//	@Brief			renderFooter renders the application footer.
 //
-//		@Return			string	Footer with help text from current mode
+//	@Return	    string	Footer with help text from current mode
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) renderFooter() string {
@@ -310,11 +310,11 @@ func (m *manager) renderFooter() string {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			remainingHeight calculates remaining vertical space for padding.
+//	@Brief			remainingHeight calculates remaining vertical space for padding.
 //
-//		@Param			contentHeight	int		Current content height
+//	@Param			contentHeight	int		Current content height
 //
-//		@Return			int		Remaining height (0 if negative)
+//	@Return		int		Remaining height (0 if negative)
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) remainingHeight(contentHeight int) int {
@@ -327,9 +327,9 @@ func (m *manager) remainingHeight(contentHeight int) int {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			totalContentWidth calculates the total width of content area.
+//	@Brief			totalContentWidth calculates the total width of content area.
 //
-//		@Return			int		Total width (left panel + right panel + padding)
+//	@Return		int		Total width (left panel + right panel + padding)
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) totalContentWidth() int {
@@ -338,9 +338,9 @@ func (m *manager) totalContentWidth() int {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief			modeLabel returns a cleaned-up mode label for display.
+//	@Brief			modeLabel returns a cleaned-up mode label for display.
 //
-//		@Return			string	Formatted mode name
+//	@Return		string	Formatted mode name
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 func (m *manager) modeLabel() string {

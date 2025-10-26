@@ -12,9 +12,9 @@ type Shortcut struct {
 
 // ///////////////////////////////////////////////////////////////////////////////////////////
 //
-//	 @Brief Shortcuts contains all keyboard shortcuts for the application.
+//	@Brief 		Shortcuts contains all keyboard shortcuts for the application.
 //
-//		@Description	Displayed in the help dialog when user presses '?'
+//	@Description	Displayed in the help dialog when user presses '?'
 //
 // ///////////////////////////////////////////////////////////////////////////////////////////
 var Shortcuts = []Shortcut{
